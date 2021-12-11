@@ -23,18 +23,20 @@ namespace NasaService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //while (!stoppingToken.IsCancellationRequested)
-            //{
-            //    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            //    await Task.Delay(1000, stoppingToken);
-            //}
-
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-            DateOnly imageDate = new(2015, 06, 03);
+            string[] dateFile = await File.ReadAllLinesAsync("dates.txt", stoppingToken);
 
-            string jsonReply = await ReplyReader.GetReply(imageDate);
-            NasaReply? nasaReply = JsonSerializer.Deserialize<NasaReply>(jsonReply);
+            foreach(string line in dateFile)
+            {
+                if (DateOnly.TryParse(line, out DateOnly imageDate))
+                {
+                    _logger.LogInformation(imageDate.ToString());
+
+                    string jsonReply = await ReplyReader.GetReply(imageDate);
+                    NasaReply? nasaReply = JsonSerializer.Deserialize<NasaReply>(jsonReply);
+                }
+            }
 
             AppLifetime.StopApplication();
         }
