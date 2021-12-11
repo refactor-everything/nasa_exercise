@@ -32,7 +32,7 @@ namespace NasaService
                 if (DateOnly.TryParse(line, out DateOnly imageDate))
                 {
                     Logger.LogInformation(imageDate.ToString());
-                    await ImageGetter.GetImages(imageDate);
+                    await ImageGetter.GetImages(imageDate, @"C:\image_download");
                 }
             }
 

@@ -9,6 +9,6 @@ namespace NasaService
 {
     public interface IImageGetter
     {
-        public Task GetImages(DateOnly imageDate);
+        public Task GetImages(DateOnly imageDate, string directory);
     }
 }

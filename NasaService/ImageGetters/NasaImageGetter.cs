@@ -21,8 +21,13 @@ namespace NasaService
             ReplyReader = replyReader;
         }
 
-        public async Task GetImages(DateOnly imageDate)
+        public async Task GetImages(DateOnly imageDate, string directory)
         {
+            string targetParentDir = Path.Combine(directory, imageDate.ToString("yyyy-MM-dd"));
+
+            Logger.LogInformation($"Downloading images from {imageDate:yyyy-MM-dd} to {targetParentDir}.");
+            Directory.CreateDirectory(targetParentDir);
+
             string jsonReply = await ReplyReader.GetReply(imageDate);
             Logger.LogDebug(jsonReply);
 
@@ -38,12 +43,15 @@ namespace NasaService
 
                 string imageUrl = photo.ImgSrc;
                 string fileName = Path.GetFileName(imageUrl);
+                string targetPath = Path.Combine(targetParentDir, fileName);
+
+                Logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
 
                 using HttpResponseMessage response = await Client.GetAsync(imageUrl);
                 using Stream webStream = await response.Content.ReadAsStreamAsync();
-                using FileStream fileStream = new(fileName, FileMode.Create);
+                using FileStream fileStream = new(targetPath, FileMode.Create);
 
-                Logger.LogInformation($"Writing {imageUrl} to {fileStream.Name}.");
+                Logger.LogInformation($"{fileName} written successfully.");
 
                 webStream.CopyTo(fileStream);
             }
