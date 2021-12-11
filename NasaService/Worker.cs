@@ -1,23 +1,24 @@
+using NasaService.Models;
+using System.Text.Json;
+
 namespace NasaService
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
 
-        private string ApiKey { get; set; }
-        private string ApiUrl { get; set; }
-
         private IHostApplicationLifetime AppLifetime { get; set; }
 
-        private IImageGetter ImageGetter { get; set; }
+        private INasaReplyReader ReplyReader { get; set; }
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration, IHostApplicationLifetime appLifetime, IImageGetter imageGetter)
+        public Worker(
+            ILogger<Worker> logger,
+            IHostApplicationLifetime appLifetime,
+            INasaReplyReader replyReader)
         {
             _logger = logger;
-            ApiUrl = configuration["ApiUrl"];
-            ApiKey = configuration["ApiKey"];
             AppLifetime = appLifetime;
-            ImageGetter = imageGetter;
+            ReplyReader = replyReader;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,12 +31,10 @@ namespace NasaService
 
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-            ImageGetter.ApiUrl = ApiUrl;
-            ImageGetter.ApiKey = ApiKey;
-
             DateOnly imageDate = new(2015, 06, 03);
 
-            var reply = await ImageGetter.GetImageUrls(imageDate);
+            string jsonReply = await ReplyReader.GetReply(imageDate);
+            NasaReply? nasaReply = JsonSerializer.Deserialize<NasaReply>(jsonReply);
 
             AppLifetime.StopApplication();
         }

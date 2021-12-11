@@ -1,17 +1,35 @@
 using NasaService;
-using Microsoft.Extensions.Configuration.UserSecrets;
-using Microsoft.Extensions.Configuration;
+
+string ApiUrl = "";
+string ApiKey = "";
+string FilePath = "";
+
+IConfiguration Configuration;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(app =>
     {
-        var config = app.AddUserSecrets<Program>()
+        Configuration = app.AddUserSecrets<Program>()
         .Build();
+
+        ApiUrl = Configuration["ApiUrl"];
+        ApiKey = Configuration["ApiKey"];
+        FilePath = Configuration["FilePath"];
     })
     .ConfigureServices(services =>
     {
         services.AddHostedService<Worker>();
-        services.AddSingleton<IImageGetter, NasaImageGetter>();
+
+        if (!string.IsNullOrEmpty(FilePath))
+        {
+            services.AddSingleton<INasaReplyReader, NasaReplyFileReader>(
+                factory => new NasaReplyFileReader(FilePath));
+        }
+        else
+        {
+            services.AddSingleton<INasaReplyReader, NasaReplyWebReader>(
+                factory => new NasaReplyWebReader(ApiUrl, ApiKey));
+        }
     })
     .Build();
 
