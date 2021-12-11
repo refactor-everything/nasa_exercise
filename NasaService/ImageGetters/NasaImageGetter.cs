@@ -12,25 +12,52 @@ namespace NasaService
     {
         private static readonly HttpClient Client = new();
 
-        public string ApiUrl { get; set; }
-        public string ApiKey { get; set; }
+        private INasaReplyReader ReplyReader { get; set; }
+        private readonly ILogger<Worker> Logger;
 
-        public NasaImageGetter(string apiUrl, string apiKey)
+        public NasaImageGetter(ILogger<Worker> logger, INasaReplyReader replyReader)
         {
-            ApiUrl = apiUrl;
-            ApiKey = apiKey;
+            Logger = logger;
+            ReplyReader = replyReader;
         }
 
-        public async Task<NasaReply?> GetImageUrls(DateOnly date)
+        public async Task GetImages(DateOnly imageDate, string directory, CancellationToken stoppingToken)
         {
-            string dateString = date.ToString("yyyy-MM-dd");
+            string targetParentDir = Path.Combine(directory, imageDate.ToString("yyyy-MM-dd"));
 
-            HttpResponseMessage response = await Client.GetAsync($"{ApiUrl}?earth_date={dateString}&api_key={ApiKey}");
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
+            Logger.LogInformation($"Downloading images from {imageDate:yyyy-MM-dd} to {targetParentDir}.");
+            Directory.CreateDirectory(targetParentDir);
 
-            NasaReply? reply = JsonSerializer.Deserialize<NasaReply>(responseBody);
-            return reply;
+            string jsonReply = await ReplyReader.GetReply(imageDate);
+            Logger.LogDebug(jsonReply);
+
+            NasaReply? nasaReply = JsonSerializer.Deserialize<NasaReply?>(jsonReply);
+
+            if (nasaReply == null || nasaReply.Photos == null)
+                return;
+
+            foreach(Photo photo in nasaReply.Photos)
+            {
+                if (photo.ImgSrc == null)
+                    continue;
+
+                string imageUrl = photo.ImgSrc;
+                string fileName = Path.GetFileName(imageUrl);
+                string targetPath = Path.Combine(targetParentDir, fileName);
+
+                Logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
+
+                using HttpResponseMessage response = await Client.GetAsync(imageUrl);
+                using Stream webStream = await response.Content.ReadAsStreamAsync();
+                using FileStream fileStream = new(targetPath, FileMode.Create);
+
+                if (stoppingToken.IsCancellationRequested)
+                    return;
+
+                webStream.CopyTo(fileStream);
+
+                Logger.LogInformation($"{fileName} written successfully.");
+            }
         }
     }
 }
