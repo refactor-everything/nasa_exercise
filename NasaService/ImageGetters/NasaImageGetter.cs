@@ -21,7 +21,7 @@ namespace NasaService
             ReplyReader = replyReader;
         }
 
-        public async Task GetImages(DateOnly imageDate, string directory)
+        public async Task GetImages(DateOnly imageDate, string directory, CancellationToken stoppingToken)
         {
             string targetParentDir = Path.Combine(directory, imageDate.ToString("yyyy-MM-dd"));
 
@@ -51,9 +51,12 @@ namespace NasaService
                 using Stream webStream = await response.Content.ReadAsStreamAsync();
                 using FileStream fileStream = new(targetPath, FileMode.Create);
 
-                Logger.LogInformation($"{fileName} written successfully.");
+                if (stoppingToken.IsCancellationRequested)
+                    return;
 
                 webStream.CopyTo(fileStream);
+
+                Logger.LogInformation($"{fileName} written successfully.");
             }
         }
     }
