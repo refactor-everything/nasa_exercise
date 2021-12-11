@@ -30,6 +30,8 @@ IHost host = Host.CreateDefaultBuilder(args)
             services.AddSingleton<INasaReplyReader, NasaReplyWebReader>(
                 factory => new NasaReplyWebReader(ApiUrl, ApiKey));
         }
+
+        services.AddSingleton<IImageGetter, NasaImageGetter>();
     })
     .Build();
 

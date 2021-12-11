@@ -12,25 +12,41 @@ namespace NasaService
     {
         private static readonly HttpClient Client = new();
 
-        public string ApiUrl { get; set; }
-        public string ApiKey { get; set; }
+        private INasaReplyReader ReplyReader { get; set; }
+        private readonly ILogger<Worker> Logger;
 
-        public NasaImageGetter(string apiUrl, string apiKey)
+        public NasaImageGetter(ILogger<Worker> logger, INasaReplyReader replyReader)
         {
-            ApiUrl = apiUrl;
-            ApiKey = apiKey;
+            Logger = logger;
+            ReplyReader = replyReader;
         }
 
-        public async Task<NasaReply?> GetImageUrls(DateOnly date)
+        public async Task GetImages(DateOnly imageDate)
         {
-            string dateString = date.ToString("yyyy-MM-dd");
+            string jsonReply = await ReplyReader.GetReply(imageDate);
+            Logger.LogDebug(jsonReply);
 
-            HttpResponseMessage response = await Client.GetAsync($"{ApiUrl}?earth_date={dateString}&api_key={ApiKey}");
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
+            NasaReply? nasaReply = JsonSerializer.Deserialize<NasaReply?>(jsonReply);
 
-            NasaReply? reply = JsonSerializer.Deserialize<NasaReply>(responseBody);
-            return reply;
+            if (nasaReply == null || nasaReply.Photos == null)
+                return;
+
+            foreach(Photo photo in nasaReply.Photos)
+            {
+                if (photo.ImgSrc == null)
+                    continue;
+
+                string imageUrl = photo.ImgSrc;
+                string fileName = Path.GetFileName(imageUrl);
+
+                using HttpResponseMessage response = await Client.GetAsync(imageUrl);
+                using Stream webStream = await response.Content.ReadAsStreamAsync();
+                using FileStream fileStream = new(fileName, FileMode.Create);
+
+                Logger.LogInformation($"Writing {imageUrl} to {fileStream.Name}.");
+
+                webStream.CopyTo(fileStream);
+            }
         }
     }
 }
