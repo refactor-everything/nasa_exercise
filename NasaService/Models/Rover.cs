@@ -16,10 +16,10 @@ namespace NasaService.Models
         public string Name { get; set; }
         
         [JsonPropertyName("landing_date")]
-        public DateOnly LandingDate { get; set; }
+        public DateTime LandingDate { get; set; }
         
         [JsonPropertyName("launch_date")]
-        public DateOnly LaunchDate { get; set; }
+        public DateTime LaunchDate { get; set; }
 
         [JsonPropertyName("status")]
         public string Status { get; set; }

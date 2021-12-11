@@ -16,15 +16,15 @@ namespace NasaService.Models
         public int Sol { get; set; }
 
         [JsonPropertyName("camera")]
-        public Camera Camera { get; set; }
+        public Camera? Camera { get; set; }
 
         [JsonPropertyName("img_src")]
-        public string ImgSrc { get; set; }
+        public string? ImgSrc { get; set; }
 
         [JsonPropertyName("earth_date")]
-        public DateOnly EarthDate { get; set; }
+        public DateTime EarthDate { get; set; }
 
         [JsonPropertyName("rover")]
-        public Rover Rover { get; set; }
+        public Rover? Rover { get; set; }
     }
 }
