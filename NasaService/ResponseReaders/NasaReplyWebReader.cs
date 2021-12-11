@@ -8,20 +8,20 @@ using NasaService.Models;
 
 namespace NasaService
 {
-    public class NasaImageGetter : IImageGetter
+    public class NasaReplyWebReader : INasaReplyReader
     {
         private static readonly HttpClient Client = new();
 
-        public string ApiUrl { get; set; }
-        public string ApiKey { get; set; }
+        public string ApiUrl { get; private set; }
+        private string ApiKey { get; set; }
 
-        public NasaImageGetter(string apiUrl, string apiKey)
+        public NasaReplyWebReader(string apiUrl, string apiKey)
         {
             ApiUrl = apiUrl;
             ApiKey = apiKey;
         }
 
-        public async Task<NasaReply?> GetImageUrls(DateOnly date)
+        public async Task<string> GetReply(DateOnly date)
         {
             string dateString = date.ToString("yyyy-MM-dd");
 
@@ -29,8 +29,7 @@ namespace NasaService
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
-            NasaReply? reply = JsonSerializer.Deserialize<NasaReply>(responseBody);
-            return reply;
+            return responseBody;
         }
     }
 }
