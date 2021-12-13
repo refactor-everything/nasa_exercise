@@ -29,6 +29,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         {
             services.AddSingleton<INasaReplyReader, NasaReplyWebReader>(
                 factory => new NasaReplyWebReader(ApiUrl, ApiKey));
+
+            // https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
+            services.AddHttpClient<INasaReplyReader, NasaReplyWebReader>();
         }
 
         services.AddSingleton<IImageGetter, NasaImageGetter>();
