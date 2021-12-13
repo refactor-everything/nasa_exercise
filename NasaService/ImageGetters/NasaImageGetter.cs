@@ -47,14 +47,12 @@ namespace NasaService
 
                 Logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
 
-                using HttpResponseMessage response = await Client.GetAsync(imageUrl);
-                using Stream webStream = await response.Content.ReadAsStreamAsync();
+                //using HttpResponseMessage response = await Client.GetAsync(imageUrl, stoppingToken);
+                //using Stream webStream = await response.Content.ReadAsStreamAsync(stoppingToken);
+                using Stream webStream = await Client.GetStreamAsync(imageUrl, stoppingToken);
                 using FileStream fileStream = new(targetPath, FileMode.Create);
 
-                if (stoppingToken.IsCancellationRequested)
-                    return;
-
-                webStream.CopyTo(fileStream);
+                await webStream.CopyToAsync(fileStream, stoppingToken);
 
                 Logger.LogInformation($"{fileName} written successfully.");
             }
