@@ -10,15 +10,20 @@ namespace NasaService
 {
     public class NasaImageGetter : IImageGetter
     {
-        private static readonly HttpClient Client = new();
+        //private static readonly HttpClient Client = new();
+
+        private readonly IHttpClientFactory HttpClientFactory;
 
         private INasaReplyReader ReplyReader { get; set; }
         private readonly ILogger<Worker> Logger;
 
-        public NasaImageGetter(ILogger<Worker> logger, INasaReplyReader replyReader)
+        public NasaImageGetter(ILogger<Worker> logger,
+            INasaReplyReader replyReader,
+            IHttpClientFactory httpClientFactory)
         {
             Logger = logger;
             ReplyReader = replyReader;
+            HttpClientFactory = httpClientFactory;
         }
 
         public async Task GetImages(DateOnly imageDate, string directory, CancellationToken stoppingToken)
@@ -47,9 +52,11 @@ namespace NasaService
 
                 Logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
 
+                var client = HttpClientFactory.CreateClient();
+
                 //using HttpResponseMessage response = await Client.GetAsync(imageUrl, stoppingToken);
                 //using Stream webStream = await response.Content.ReadAsStreamAsync(stoppingToken);
-                using Stream webStream = await Client.GetStreamAsync(imageUrl, stoppingToken);
+                using Stream webStream = await client.GetStreamAsync(imageUrl, stoppingToken);
                 using FileStream fileStream = new(targetPath, FileMode.Create);
 
                 await webStream.CopyToAsync(fileStream, stoppingToken);

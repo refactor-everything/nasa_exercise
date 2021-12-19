@@ -51,15 +51,18 @@ IHost host = Host.CreateDefaultBuilder(args)
 
             //services.Configure<NasaWebApiOptions>(host.Configuration.GetSection("NasaWebApiOptions"));
 
+            services.AddHttpClient();
+
             services.AddSingleton<INasaReplyReader, NasaReplyWebReader>()
-                .Configure<NasaWebApiOptions>(webApiConfigSection)
-                .AddHttpClient();
+                .Configure<NasaWebApiOptions>(webApiConfigSection);
+                //.AddHttpClient();
 
             // https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             //services.AddHttpClient<INasaReplyReader, NasaReplyWebReader>();
         }
 
         services.AddSingleton<IImageGetter, NasaImageGetter>();
+            //.AddHttpClient();
     })
     .Build();
 
