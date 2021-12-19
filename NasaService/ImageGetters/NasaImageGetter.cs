@@ -10,8 +10,6 @@ namespace NasaService
 {
     public class NasaImageGetter : IImageGetter
     {
-        //private static readonly HttpClient Client = new();
-
         private readonly IHttpClientFactory HttpClientFactory;
 
         private INasaReplyReader ReplyReader { get; set; }

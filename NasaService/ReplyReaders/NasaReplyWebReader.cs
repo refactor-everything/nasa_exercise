@@ -11,18 +11,10 @@ namespace NasaService
 {
     public class NasaReplyWebReader : INasaReplyReader
     {
-        //private static readonly HttpClient Client = new();
-
         private readonly IHttpClientFactory HttpClientFactory;
 
         public string ApiUrl { get; private set; }
         private string ApiKey { get; set; }
-
-        //public NasaReplyWebReader(string apiUrl, string apiKey)
-        //{
-        //    ApiUrl = apiUrl;
-        //    ApiKey = apiKey;
-        //}
 
         public NasaReplyWebReader(IOptions<NasaWebApiOptions> options,
             IHttpClientFactory httpClientFactory)
