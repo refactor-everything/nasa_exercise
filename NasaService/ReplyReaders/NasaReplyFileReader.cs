@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,14 @@ namespace NasaService
     {
         public string FilePath { get; private set; }
 
-        public NasaReplyFileReader(string filePath)
+        //public NasaReplyFileReader(string filePath)
+        //{
+        //    FilePath = filePath;
+        //}
+
+        public NasaReplyFileReader(IOptions<NasaFileOptions> options)
         {
-            FilePath = filePath;
+            FilePath = options.Value.FilePath;
         }
 
         public async Task<string> GetReply(DateOnly date)
