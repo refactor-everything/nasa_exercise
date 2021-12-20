@@ -39,7 +39,9 @@ namespace NasaService
             if (nasaReply == null || nasaReply.Photos == null)
                 return;
 
-            foreach(Photo photo in nasaReply.Photos)
+            var client = HttpClientFactory.CreateClient();
+
+            foreach (Photo photo in nasaReply.Photos)
             {
                 if (photo.ImgSrc == null)
                     continue;
@@ -49,8 +51,6 @@ namespace NasaService
                 string targetPath = Path.Combine(targetParentDir, fileName);
 
                 Logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
-
-                var client = HttpClientFactory.CreateClient();
 
                 //using HttpResponseMessage response = await Client.GetAsync(imageUrl, stoppingToken);
                 //using Stream webStream = await response.Content.ReadAsStreamAsync(stoppingToken);
