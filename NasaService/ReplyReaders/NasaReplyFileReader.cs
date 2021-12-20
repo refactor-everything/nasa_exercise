@@ -11,11 +11,6 @@ namespace NasaService
     {
         public string FilePath { get; private set; }
 
-        //public NasaReplyFileReader(string filePath)
-        //{
-        //    FilePath = filePath;
-        //}
-
         public NasaReplyFileReader(IOptions<NasaFileOptions> options)
         {
             FilePath = options.Value.FilePath;
