@@ -3,6 +3,9 @@ using System.Text.Json;
 
 namespace NasaService
 {
+    /// <summary>
+    /// Class containing worker execution logic.
+    /// </summary>
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> Logger;
@@ -21,14 +24,22 @@ namespace NasaService
             ImageGetter = imageGetter;
         }
 
+        /// <summary>
+        /// Gets NASA images by date.
+        /// </summary>
+        /// <param name="stoppingToken">Token indicating when execution should stop.</param>
+        /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
+            // Read all dates.
             string[] dateFile = await File.ReadAllLinesAsync("dates.txt", stoppingToken);
 
+            // Iterate through each date.
             foreach(string line in dateFile)
             {
+                // Process only valid dates.
                 if (DateOnly.TryParse(line, out DateOnly imageDate))
                 {
                     Logger.LogInformation(imageDate.ToString());
