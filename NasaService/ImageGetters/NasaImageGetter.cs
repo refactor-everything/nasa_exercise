@@ -13,18 +13,18 @@ namespace NasaService
     /// </summary>
     public class NasaImageGetter : IImageGetter
     {
-        private readonly IHttpClientFactory HttpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        private INasaReplyReader ReplyReader { get; set; }
-        private readonly ILogger<Worker> Logger;
+        private INasaReplyReader _replyReader { get; set; }
+        private readonly ILogger<Worker> _logger;
 
         public NasaImageGetter(ILogger<Worker> logger,
             INasaReplyReader replyReader,
             IHttpClientFactory httpClientFactory)
         {
-            Logger = logger;
-            ReplyReader = replyReader;
-            HttpClientFactory = httpClientFactory;
+            _logger = logger;
+            _replyReader = replyReader;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task GetImages(DateOnly imageDate, string directory, CancellationToken stoppingToken)
@@ -32,12 +32,12 @@ namespace NasaService
             // Save the files to a path that includes the date.
             string targetParentDir = Path.Combine(directory, imageDate.ToString("yyyy-MM-dd"));
 
-            Logger.LogInformation($"Downloading images from {imageDate:yyyy-MM-dd} to {targetParentDir}.");
+            _logger.LogInformation($"Downloading images from {imageDate:yyyy-MM-dd} to {targetParentDir}.");
             Directory.CreateDirectory(targetParentDir);
 
             // Get the reply (either from the NASA website or the downloaded json file -- whichever is configured)
-            string jsonReply = await ReplyReader.GetReply(imageDate);
-            Logger.LogDebug(jsonReply);
+            string jsonReply = await _replyReader.GetReply(imageDate);
+            _logger.LogDebug(jsonReply);
 
             // Convert json to object.
             NasaReply? nasaReply = JsonSerializer.Deserialize<NasaReply?>(jsonReply);
@@ -47,7 +47,7 @@ namespace NasaService
                 return;
 
             // Create HTTP client.
-            var client = HttpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
 
             // Get each photo.
             foreach (Photo photo in nasaReply.Photos)
@@ -59,14 +59,14 @@ namespace NasaService
                 string fileName = Path.GetFileName(imageUrl);
                 string targetPath = Path.Combine(targetParentDir, fileName);
 
-                Logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
+                _logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
 
                 using Stream webStream = await client.GetStreamAsync(imageUrl, stoppingToken);
                 using FileStream fileStream = new(targetPath, FileMode.Create);
 
                 await webStream.CopyToAsync(fileStream, stoppingToken);
 
-                Logger.LogInformation($"{fileName} written successfully.");
+                _logger.LogInformation($"{fileName} written successfully.");
             }
         }
     }

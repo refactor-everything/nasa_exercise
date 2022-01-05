@@ -11,7 +11,7 @@ namespace NasaService
 {
     public class NasaReplyWebReader : INasaReplyReader
     {
-        private readonly IHttpClientFactory HttpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public string ApiUrl { get; private set; }
         private string ApiKey { get; set; }
@@ -21,14 +21,14 @@ namespace NasaService
         {
             ApiUrl = options.Value.ApiUrl;
             ApiKey = options.Value.ApiKey;
-            HttpClientFactory = httpClientFactory;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<string> GetReply(DateOnly date)
         {
             string dateString = date.ToString("yyyy-MM-dd");
 
-            var client = HttpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
 
             HttpResponseMessage response = await client.GetAsync($"{ApiUrl}?earth_date={dateString}&api_key={ApiKey}");
             response.EnsureSuccessStatusCode();

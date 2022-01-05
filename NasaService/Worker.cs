@@ -8,20 +8,20 @@ namespace NasaService
     /// </summary>
     public class Worker : BackgroundService
     {
-        private readonly ILogger<Worker> Logger;
+        private readonly ILogger<Worker> _logger;
 
-        private IHostApplicationLifetime AppLifetime { get; set; }
+        private IHostApplicationLifetime _appLifetime { get; set; }
 
-        private IImageGetter ImageGetter { get; set; }
+        private IImageGetter _imageGetter { get; set; }
 
         public Worker(
             ILogger<Worker> logger,
             IHostApplicationLifetime appLifetime,
             IImageGetter imageGetter)
         {
-            Logger = logger;
-            AppLifetime = appLifetime;
-            ImageGetter = imageGetter;
+            _logger = logger;
+            _appLifetime = appLifetime;
+            _imageGetter = imageGetter;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace NasaService
         /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
             // Read all dates.
             string[] dateFile = await File.ReadAllLinesAsync("dates.txt", stoppingToken);
@@ -42,12 +42,12 @@ namespace NasaService
                 // Process only valid dates.
                 if (DateOnly.TryParse(line, out DateOnly imageDate))
                 {
-                    Logger.LogInformation(imageDate.ToString());
-                    await ImageGetter.GetImages(imageDate, @"C:\image_download", stoppingToken);
+                    _logger.LogInformation(imageDate.ToString());
+                    await _imageGetter.GetImages(imageDate, @"C:\image_download", stoppingToken);
                 }
             }
 
-            AppLifetime.StopApplication();
+            _appLifetime.StopApplication();
         }
     }
 }
