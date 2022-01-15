@@ -31,10 +31,17 @@ namespace NasaService
         public async Task GetImages(DateOnly imageDate, string directory, CancellationToken stoppingToken)
         {
             // Save the files to a path that includes the date.
-            string targetParentDir = Path.Combine(directory, imageDate.ToString("yyyy-MM-dd"));
+            string targetDir = Path.Combine(directory, imageDate.ToString("yyyy-MM-dd"));
 
-            _logger.LogInformation($"Downloading images from {imageDate:yyyy-MM-dd} to {targetParentDir}.");
-            Directory.CreateDirectory(targetParentDir);
+            if(!Path.IsPathFullyQualified(targetDir))
+            {
+                targetDir = Path.Combine(Environment.CurrentDirectory, targetDir);
+            }
+
+            if(!Directory.Exists(targetDir))
+                Directory.CreateDirectory(targetDir);
+
+            _logger.LogInformation($"Downloading images from {imageDate:yyyy-MM-dd} to {targetDir}.");
 
             // Get the reply (either from the NASA website or the downloaded json file -- whichever is configured)
             string jsonReply = await _replyReader.GetReply(imageDate);
@@ -63,7 +70,7 @@ namespace NasaService
                 string imageUrl = Regex.Replace(photo.ImgSrc, @"^https?://mars.jpl.nasa.gov", "https://mars.nasa.gov");
 
                 string fileName = Path.GetFileName(imageUrl);
-                string targetPath = Path.Combine(targetParentDir, fileName);
+                string targetPath = Path.Combine(targetDir, fileName);
 
                 _logger.LogInformation($"Writing {imageUrl} to {targetPath}.");
 
