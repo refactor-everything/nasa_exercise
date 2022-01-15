@@ -14,11 +14,11 @@ namespace NasaService
         /// <summary>
         /// The NASA API URL.
         /// </summary>
-        public string ApiUrl { get; set; } = String.Empty;
+        public string ApiUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// The NASA API key.
         /// </summary>
-        public string ApiKey { get; set; } = String.Empty;
+        public string ApiKey { get; set; } = string.Empty;
     }
 }

@@ -14,6 +14,6 @@ namespace NasaService
         /// <summary>
         /// The full path to the file containing a downloaded JSON response.
         /// </summary>
-        public string FilePath { get; set; } = String.Empty;
+        public string FilePath { get; set; } = string.Empty;
     }
 }
