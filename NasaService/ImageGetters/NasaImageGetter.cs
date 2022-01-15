@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NasaService.Models;
 
@@ -55,7 +56,17 @@ namespace NasaService
                 if (photo.ImgSrc == null)
                     continue;
 
-                string imageUrl = photo.ImgSrc;
+                // The API is returing queries with "jpl" in the host name, which is causing "301 Permanently Moved" messages.
+                // If I leave the URL intact, the initial GET request will work after 30-45 seconds. Subsequent image GET
+                // requests will go through instantaneously.
+                // I put this here because the initial wait was bothering me. This is hacky, and needs to be refactored.
+                string imageUrl = Regex.Replace(photo.ImgSrc, @"^https?://mars.jpl.nasa.gov", "https://mars.nasa.gov");
+                //string imageUrl = photo.ImgSrc;
+
+                // TODO: See if you can get the redirect without the delay.
+                //var msg = new HttpRequestMessage(HttpMethod.Get, imageUrl);
+                //var resp = await client.SendAsync(msg, HttpCompletionOption.ResponseHeadersRead, stoppingToken);
+
                 string fileName = Path.GetFileName(imageUrl);
                 string targetPath = Path.Combine(targetParentDir, fileName);
 
