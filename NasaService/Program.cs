@@ -10,14 +10,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker>();
 
         // Get configuration sections from appsettings.json.
-        NasaWebApiOptions webApiOptions = new();
-        NasaFileOptions fileOptions = new();
-
-        var fileConfigSection = host.Configuration.GetSection("NasaFileOptions");
-        var webApiConfigSection = host.Configuration.GetSection("NasaWebApiOptions");
-
-        fileConfigSection.Bind(fileOptions);
-        webApiConfigSection.Bind(webApiOptions);
+        NasaFileOptions fileOptions = host.Configuration
+            .GetSection(nameof(NasaFileOptions))
+            .Get<NasaFileOptions>();
         
         // If there is a file path specified in the appsettings.json, we'll use this to ingest a downloaded
         // json response we've already received from nasa.gov. This is essentially for testing without having
@@ -25,7 +20,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         if (!string.IsNullOrEmpty(fileOptions.FilePath))
         {
             services.AddSingleton<INasaReplyReader, NasaReplyFileReader>()
-                .Configure<NasaFileOptions>(fileConfigSection);
+                .Configure<NasaFileOptions>(
+                    host.Configuration.GetSection(nameof(NasaFileOptions)));
         }
         // If the FilePath parameter is blank, assume standard API usage.
         else
@@ -37,7 +33,8 @@ IHost host = Host.CreateDefaultBuilder(args)
             });
 
             services.AddSingleton<INasaReplyReader, NasaReplyWebReader>()
-                .Configure<NasaWebApiOptions>(webApiConfigSection);
+                .Configure<NasaWebApiOptions>(
+                    host.Configuration.GetSection(nameof(NasaWebApiOptions)));
         }
 
         // The NasaImageGetter will make use of either the NasaReplyFileReader, or the NasaReplyWebReader -- whichever
