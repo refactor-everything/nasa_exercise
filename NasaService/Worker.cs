@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using NasaService.Models;
 using System.Text.Json;
 
@@ -14,14 +15,19 @@ namespace NasaService
 
         private IImageGetter _imageGetter { get; set; }
 
+        private CoreOptions CoreOptions { get; set; }
+
         public Worker(
             ILogger<Worker> logger,
             IHostApplicationLifetime appLifetime,
-            IImageGetter imageGetter)
+            IImageGetter imageGetter,
+            IOptions<CoreOptions> options)
         {
             _logger = logger;
             _appLifetime = appLifetime;
             _imageGetter = imageGetter;
+            
+            CoreOptions = options.Value;
         }
 
         /// <summary>
@@ -43,7 +49,7 @@ namespace NasaService
                 if (DateOnly.TryParse(line, out DateOnly imageDate))
                 {
                     _logger.LogInformation(imageDate.ToString());
-                    await _imageGetter.GetImages(imageDate, @"image_download", stoppingToken);
+                    await _imageGetter.GetImages(imageDate, CoreOptions.ImageSaveLocation, stoppingToken);
                 }
             }
 

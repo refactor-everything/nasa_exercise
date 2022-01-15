@@ -7,7 +7,8 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((host, services) =>
     {
-        services.AddHostedService<Worker>();
+        services.AddHostedService<Worker>()
+            .Configure<CoreOptions>(host.Configuration.GetSection("CoreOptions"));
 
         // Get configuration sections from appsettings.json.
         NasaFileOptions fileOptions = host.Configuration
