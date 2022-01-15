@@ -31,7 +31,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         else
         {
             // https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            services.AddHttpClient<HttpClient>(config =>
+            services.AddHttpClient<HttpClient>("", config =>
             {
                 config.DefaultRequestHeaders.Add("user-agent", ".NET Core 6.0 HttpClient");
             });
