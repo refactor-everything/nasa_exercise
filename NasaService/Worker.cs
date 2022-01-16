@@ -53,6 +53,15 @@ namespace NasaService
                 }
             }
 
+            _logger.LogInformation("Finished getting images. Now just spinning until a termination signal is sent.");
+
+            // This is just a spin wait for Docker debugging purposes.
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                Thread.Sleep(1000);
+                _logger.LogInformation("Spin.");
+            }
+
             _appLifetime.StopApplication();
         }
     }
