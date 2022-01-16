@@ -40,6 +40,9 @@ namespace NasaService.Tests
             NasaReply? nasaReply = JsonSerializer.Deserialize<NasaReply?>(reply);
 
             Assert.NotNull(nasaReply);
+
+            if(nasaReply != null)
+                Assert.NotNull(nasaReply.Photos);
         }
     }
 }
