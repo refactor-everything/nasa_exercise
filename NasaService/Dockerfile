@@ -17,4 +17,6 @@ RUN dotnet publish "NasaService.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=build /src/NasaService/dates.txt /app
+
 ENTRYPOINT ["dotnet", "NasaService.dll"]
