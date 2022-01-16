@@ -1,0 +1,16 @@
+services:
+  downloader:
+    image: nasadownloader:latest
+    build:
+      context: .
+      dockerfile: ./NasaService/Dockerfile
+    volumes:
+      - type: bind
+        source: ${APPDATA}/Microsoft/UserSecrets/dotnet-NasaService-66C32482-2E53-4AAC-82FF-4F12E8ECC5C2
+        target: /app/.secrets
+        read_only: true
+      - type: volume
+        source: images
+        target: /app/images
+volumes:
+  images:
