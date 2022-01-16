@@ -1,15 +1,6 @@
 using NasaService;
 
 IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration(app =>
-    {
-        // For use with docker compose only. Uses the secrets.json made available via bind mount (Windows only).
-        // TODO: Make this platform independent.
-        app.AddJsonFile(
-            path: ".secrets/secrets.json",
-            optional: true,
-            reloadOnChange: true);
-    })
     .ConfigureServices((host, services) =>
     {
         services.AddHostedService<Worker>()

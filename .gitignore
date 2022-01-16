@@ -6,6 +6,7 @@
 **/image_download
 
 *.dll
+*.env
 *.pdb
 *.cache
 *.props
