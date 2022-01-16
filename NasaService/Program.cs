@@ -3,7 +3,7 @@ using NasaService;
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(app =>
     {
-        app.AddUserSecrets<Program>().Build();
+        
     })
     .ConfigureServices((host, services) =>
     {
