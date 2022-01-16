@@ -1,0 +1,14 @@
+services:
+  downloader:
+    image: nasadownloader:latest
+    build:
+      context: .
+      dockerfile: ./NasaService/Dockerfile
+    volumes:
+      - type: volume
+        source: images
+        target: /app/images
+    environment:
+      DOTNET_NasaWebApiOptions__ApiKey: ${APIKEY}
+volumes:
+  images:
